@@ -22,9 +22,13 @@ install: $(PRIMARY)
 	mkdir -p $(INSTALL_DIR)
 	cp $(PRIMARY) $(INSTALL_DIR)/$(PRIMARY)
 	python3 permlinks.py install $(PRIMARY) $(INSTALL_DIR)
+	mkdir -p $(HOME)/.local/share/man/man1
+	cp fsatfetch.1 $(HOME)/.local/share/man/man1/fsatfetch.1
+	mandb -q 2>/dev/null || true
 
 uninstall:
 	python3 permlinks.py uninstall
+	rm -f $(HOME)/.local/share/man/man1/fsatfetch.1
 
 clean:
 	rm -f $(PRIMARY)
