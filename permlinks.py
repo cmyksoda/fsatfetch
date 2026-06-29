@@ -79,8 +79,8 @@ def cmd_install(binary, install_dir):
 
     print(f"creating {len(perms):,} symlinks in {install_dir}...")
     for perm in perms:
-        if perm == binary:
-            continue  # skip — the actual binary already exists there
+        if perm == binary or perm in SOURCES:
+            continue  # skip the actual binary AND the correctly spelled original commands
         link = os.path.join(install_dir, perm)
         try:
             if os.path.lexists(link):
