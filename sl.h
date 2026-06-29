@@ -4,6 +4,9 @@
  *                Toyoda Masashi
  *		  (mtoyoda@acm.org)
  *	Last Modified: 2014/06/03
+ *
+ *   Forked by cmyksoda (jaxi@cmyksoda.cc)
+ *   Last Modified: 2026/06/29
  *========================================
  */
 
