@@ -15,7 +15,7 @@ it's just a joke command, and not useful at all.
 make
 make install
 ```
-restart your shell after installing, or run the export line printed by the installer.
+restart your shell after installing, or source your rc file (`~/.bashrc`, `~/.zshrc`, or `~/.config/fish/config.fish`) to activate it immediately.
 
 ## uninstall
 ```sh
