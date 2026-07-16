@@ -1,7 +1,7 @@
 fsatfetch: cure your bad habit of mistyping
 =======================================
 
-a fork of sl (steam locomotive) that runs across your terminal when you misspell any of the following commands:
+a fork of sl (steam locomotive) that runs across your terminal when you misspell any of the following commands:  
 ``fastfetch, neofetch, pfetch, qwqfetch, hyfetch``  
 it's just a joke command, and not useful at all.
 
