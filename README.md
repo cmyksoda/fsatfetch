@@ -26,3 +26,7 @@ Copyright 1993,1998,2014 Toyoda Masashi (mtoyoda@acm.org)
 Forked by cmyksoda (jaxi@cmyksoda.cc)
 
 ![](demo.gif)
+
+---
+
+*This project was made with AI assistance. For more information, see [my AI usage statement](https://github.com/cmyksoda/cmyksoda/blob/main/AI_USAGE.md).*
