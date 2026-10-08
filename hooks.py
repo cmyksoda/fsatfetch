@@ -15,41 +15,39 @@ RC_ZSH  = '~/.zshrc'
 RC_FISH = '~/.config/fish/config.fish'
 
 
-def bash_block(binary):
+# Hooks use shell builtins only: a helper missing from PATH would re-enter
+# the hook for itself and fork-bomb the shell.
+def posix_body(binary):
     words = ' '.join(SOURCES)
-    return f'''{MARK_BEGIN}
-command_not_found_handle() {{
-    local word sorted src ssorted
-    word=$(printf '%s' "$1" | fold -w1 | sort | tr -d '\\n')
+    return f'''    local src rest i
     for src in {words}; do
         [ "$1" = "$src" ] && continue
-        ssorted=$(printf '%s' "$src" | fold -w1 | sort | tr -d '\\n')
-        if [ "$word" = "$ssorted" ]; then
+        [ "${{#1}}" -eq "${{#src}}" ] || continue
+        rest=$1
+        for (( i = 0; i < ${{#src}}; i++ )); do
+            rest=${{rest/"${{src:i:1}}"/}}
+        done
+        if [ -z "$rest" ] && [ -x {binary} ]; then
             exec {binary}
         fi
     done
     printf '%s: command not found\\n' "$1" >&2
-    return 127
+    return 127'''
+
+
+def bash_block(binary):
+    return f'''{MARK_BEGIN}
+command_not_found_handle() {{
+{posix_body(binary)}
 }}
 {MARK_END}
 '''
 
 
 def zsh_block(binary):
-    words = ' '.join(SOURCES)
     return f'''{MARK_BEGIN}
 command_not_found_handler() {{
-    local word sorted src ssorted
-    word=$(printf '%s' "$1" | fold -w1 | sort | tr -d '\\n')
-    for src in {words}; do
-        [ "$1" = "$src" ] && continue
-        ssorted=$(printf '%s' "$src" | fold -w1 | sort | tr -d '\\n')
-        if [ "$word" = "$ssorted" ]; then
-            exec {binary}
-        fi
-    done
-    printf '%s: command not found\\n' "$1" >&2
-    return 127
+{posix_body(binary)}
 }}
 {MARK_END}
 '''
@@ -59,13 +57,15 @@ def fish_block(binary):
     words = ' '.join(SOURCES)
     return f'''{MARK_BEGIN}
 function fish_command_not_found
-    set -l word (string split '' -- $argv[1] | sort | string join '')
     for src in {words}
-        if test "$argv[1]" = "$src"
+        if test "$argv[1]" = "$src"; or test (string length -- "$argv[1]") -ne (string length -- $src)
             continue
         end
-        set -l ssrc (string split '' -- $src | sort | string join '')
-        if test "$word" = "$ssrc"
+        set -l rest "$argv[1]"
+        for c in (string split '' -- $src)
+            set rest (string replace -- $c '' "$rest")
+        end
+        if test -z "$rest"; and test -x {binary}
             exec {binary}
         end
     end
@@ -75,12 +75,33 @@ end
 '''
 
 
+def without_block(lines, replacement=''):
+    out = []
+    inside = False
+    changed = False
+    for line in lines:
+        if MARK_BEGIN in line:
+            inside = True
+            changed = True
+            out.append(replacement)
+            continue
+        if MARK_END in line:
+            inside = False
+            continue
+        if not inside:
+            out.append(line)
+    return out, changed
+
+
 def install_block(rc_path, block_text):
     rc_path = os.path.expanduser(rc_path)
     os.makedirs(os.path.dirname(rc_path), exist_ok=True)
     content = open(rc_path).read() if os.path.exists(rc_path) else ''
     if MARK_BEGIN in content:
-        print(f"  {rc_path} already has a hook, skipping")
+        # Replacing in place lets a reinstall upgrade older, unsafe hooks.
+        lines, _ = without_block(content.splitlines(keepends=True), block_text)
+        open(rc_path, 'w').writelines(lines)
+        print(f"  updated hook in {rc_path}")
         return
     with open(rc_path, 'a') as f:
         f.write('\n' + block_text)
@@ -91,22 +112,9 @@ def remove_block(rc_path):
     rc_path = os.path.expanduser(rc_path)
     if not os.path.exists(rc_path):
         return
-    lines = open(rc_path).readlines()
-    out = []
-    inside = False
-    changed = False
-    for line in lines:
-        if MARK_BEGIN in line:
-            inside = True
-            changed = True
-            continue
-        if MARK_END in line:
-            inside = False
-            continue
-        if not inside:
-            out.append(line)
+    lines, changed = without_block(open(rc_path).readlines())
     if changed:
-        open(rc_path, 'w').writelines(out)
+        open(rc_path, 'w').writelines(lines)
         print(f"  removed hook from {rc_path}")
 
 
