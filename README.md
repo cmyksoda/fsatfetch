@@ -22,10 +22,19 @@ restart your shell after installing, or source your rc file (`~/.bashrc`, `~/.zs
 make uninstall
 ```
 
-Copyright 1993,1998,2014 Toyoda Masashi (mtoyoda@acm.org)
-Forked by cmyksoda (jaxi@cmyksoda.cc)
-
 ![](demo.gif)
+
+## Credits
+
+- **sl** by Toyoda Masashi ([mtoyoda/sl](https://github.com/mtoyoda/sl)), the steam locomotive fsatfetch is forked from, with later fixes by Chris Seymour, Jeff Schwab, and Ryan Jacobs
+- **fsatfetch** forked from sl by cmyksoda (jaxi@cmyksoda.cc)
+- **ncurses**, which draws the animation in the terminal
+
+## License
+
+fsatfetch is released under the [same license as sl](LICENSE), a short permissive license. Everyone is permitted to do anything with the program, including copying, modifying, and improving it, unless they try to pretend they wrote it, and the copyright notice has to appear in all copies. The author disclaims any responsibility with regard to the software.
+
+Copyright 1993,1998,2014 Toyoda Masashi (mtoyoda@acm.org)
 
 ---
 
